@@ -41,13 +41,13 @@ POST:
 
 @app.route('/ca',methods=['GET'])
 def ca():
-    with open("easy-rsa/pki/ca.crt", 'r') as f:
+    with open("pki/ca.crt", 'r') as f:
         data=f.read()
     return data
 
 @app.route('/crl',methods=['GET'])
 def crl():
-    with open("easy-rsa/pki/crl.pem", 'r') as f:
+    with open("pki/crl.pem", 'r') as f:
         data=f.read()
     return data
 
