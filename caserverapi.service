@@ -1,0 +1,11 @@
+[Unit]
+Description=Start CA Server API Service
+After=network.target
+
+[Service]
+WorkingDirectory=/etc/caserverapi
+ExecStart=/etc/caserverapi/caserverapi.sh
+
+
+[Install]
+WantedBy=multi-user.target
