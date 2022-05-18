@@ -47,6 +47,8 @@ def ca():
 
 @app.route('/crl',methods=['GET'])
 def crl():
+    if os.path.isfile('pki/crl.pem'):
+        os.system('./easyrsa gen-crl')
     with open("pki/crl.pem", 'r') as f:
         data=f.read()
     return data

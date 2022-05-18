@@ -143,6 +143,11 @@ then
     sudo ./easyrsa build-ca nopass
 fi
 
+if [ ! -f pki/crl.pem ]
+then
+    sudo ./easyrsa gen-crl
+fi
+
 sudo systemctl daemon-reload
 
 echo ""
