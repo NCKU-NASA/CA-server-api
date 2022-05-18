@@ -59,7 +59,7 @@ def sign():
         f.write(base64.b64decode(data['req'].encode("UTF-8")))
     subject = json.loads('{"' + os.popen('openssl req -in ' + reqname + ' -text | grep -oP \'(?<=Subject:).*\' | sed \'s/\s*=\s*/\":\"/g\' | sed \'s/,\s*/\",\"/g\'').read().strip() + '"}')
     if data['type'] == 'ca':
-        studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr + '"}\'').read().strip().lower()
+        studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr.replace('.200.','.100.') + '"}\'').read().strip().lower()
         if subject['CN'].lower() != studentid:
             return "Invalid CA common name. please use studentid."
 
@@ -74,7 +74,7 @@ def sign():
                 return "Invalid Subject Alternative Name. We only valid DNS Subject Alternative Name."
             elif len(dns.resolver.query(re.sub(r'DNS:[^.]*\.', '', name),'NS')) < 1:
                 return "Invalid Subject Alternative Name. Nonexistent NS record."
-            elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr:
+            elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr.replace('.200.','.100.'):
                 return "Invalid Subject Alternative Name. You only can use your own DNS zone."
             elif name != 'DNS:*.'+re.sub(r'DNS:[^.]*\.', '', name):
                 try:
@@ -120,7 +120,7 @@ def revoke():
     if os.path.isfile('pki/issued/' + subject['CN'].lower() + '.crt'):
         isca = json.loads(os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 "Basic Constraints:" | grep "CA" | sed \'s/\s//g\' | awk -F \':\' \'{print $2}\'').read().strip())
         if isca:
-            studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr + '"}\'').read().strip().lower()
+            studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr.replace('.200.','.100.') + '"}\'').read().strip().lower()
             if subject['CN'].lower() != studentid:
                 return "Invalid CA common name. You only can control CN with your studentid."
         else:
@@ -128,7 +128,7 @@ def revoke():
             for name in subaltname:
                 if name == '':
                     return "Invalid Subject Alternative Name. You only can use your own DNS zone."
-                elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr:
+                elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr.replace('.200.','.100.'):
                     return "Invalid Subject Alternative Name. You only can use your own DNS zone."
     else:
         return "Certificate nonexist."
