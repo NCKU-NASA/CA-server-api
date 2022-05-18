@@ -9,7 +9,7 @@ cd CA-server-api
 
 for a in $(ls -a)
 do
-    if [ "$a" != "." ] && [ "$a" != ".." ] && [ "$a" != ".git" ] && [ "$a" != "README.md" ] && [ "$a" != "install.sh" ] && [ "$a" != "remove.sh" ] && [ "$a" != "setupgit.sh" ]
+    if [ "$a" != "." ] && [ "$a" != ".." ] && [ "$a" != ".git" ] && [ "$a" != "Readme.md" ] && [ "$a" != "install.sh" ] && [ "$a" != "remove.sh" ] && [ "$a" != "setupgit.sh" ]
     then
         rm -rf $a
     fi
@@ -17,9 +17,9 @@ done
 
 for a in $(ls -a /etc/caserverapi)
 do
-    if [ "$a" != "." ] && [ "$a" != ".." ] && [ "$(cat /etc/nasajudgeapi/.gitignore | sed 's/\/.*//g' | sed '/^!.*/d' | grep -P "^$(echo "$a" | sed 's/\./\\\./g')$")" == "" ]
+    if [ "$a" != "." ] && [ "$a" != ".." ] && [ "$(cat /etc/caserverapi/.gitignore | sed 's/\/.*//g' | sed '/^!.*/d' | grep -P "^$(echo "$a" | sed 's/\./\\\./g')$")" == "" ]
     then
-        sudo cp -r /etc/nasajudgeapi/$a $a
+        sudo cp -r /etc/caserverapi/$a $a
     fi
 done
 

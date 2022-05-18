@@ -92,7 +92,7 @@ def sign():
 
 
 @app.route('/downloadcert',methods=['POST'])
-def downloadcert(justsign=False,cn='')
+def downloadcert(justsign=False,cn=''):
     if justsign:
         subject = {'CN':cn}
     else:
@@ -115,13 +115,13 @@ def downloadcert(justsign=False,cn='')
         return "Certificate nonexist."
 
 @app.route('/revoke',methods=['POST'])
-def revoke()
+def revoke():
     subject = json.loads(request.get_data())
     if os.path.isfile('pki/issued/' + subject['CN'].lower() + '.crt'):
         isca = json.loads(os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 "Basic Constraints:" | grep "CA" | sed \'s/\s//g\' | awk -F \':\' \'{print $2}\'').read().strip())
         if isca:
             studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr + '"}\'').read().strip().lower()
-            if subject['CN'].lower() != studentid
+            if subject['CN'].lower() != studentid:
                 return "Invalid CA common name. You only can control CN with your studentid."
         else:
             subaltname = os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 \'Subject Alternative Name:\' | tail -n 1 | sed \'s/\s//g\'').read().strip().split(',')

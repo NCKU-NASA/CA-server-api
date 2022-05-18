@@ -4,7 +4,5 @@ workdir="/etc/caserverapi"
 
 . ./venv/bin/activate
 
-cd easy-rsa
-
-gunicorn --bind [::]:80 caserverapi:app
+gunicorn --bind 0.0.0.0:80 --chdir easy-rsa caserverapi:app
 
