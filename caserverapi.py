@@ -28,7 +28,7 @@ POST:
                     Options:
                         type: your certificate type. Ex: ca, web
                         req: your req file(encode with base64).
-                    Ex: wget rootca.nasa/sign --header 'Content-Type:application/json' --post-data '{\"type\":\"ca\",\"req\":\"$(cat <req file> | base64)\"}' -O certificate.zip
+                    Ex: wget rootca.nasa/sign --header 'Content-Type:application/json' --post-data \"{\\\"type\\\":\\\"ca\\\",\\\"req\\\":\\\"$(cat <req file> | base64 -w 0)\\\"}\" -O certificate.zip
     downloadcert    download certificate.
                     Options:
                         CN: your certificate CN.
@@ -55,7 +55,7 @@ def crl():
 
 @app.route('/sign',methods=['POST'])
 def sign():
-    data = json.loads(request.get_data())
+    data = json.loads(request.get_data().decode())
     reqname = '/tmp/' + str(uuid.uuid4()) + '.req'
     with open(reqname, 'wb') as f:
         f.write(base64.b64decode(data['req'].encode("UTF-8")))
@@ -63,33 +63,42 @@ def sign():
     if data['type'] == 'ca':
         studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr.replace('.200.','.100.') + '"}\'').read().strip().lower()
         if subject['CN'].lower() != studentid:
-            return "Invalid CA common name. please use studentid."
+            os.remove(reqname)
+            return "Invalid CA common name. please use studentid.", 403
 
-        os.system('./easyrsa import-req ' + reqname + ' \'' + subject['CN'].lower() + '\' --batch')
-        os.system('./easyrsa sign-req ca \'' + subject['CN'].lower() + '\' --batch')
+        os.system('./easyrsa --batch import-req ' + reqname + ' \'' + subject['CN'].lower() + '\'')
+        os.system('./easyrsa --batch sign-req ca \'' + subject['CN'].lower() + '\'')
     elif data['type'] == 'web':
         subaltname = os.popen('openssl req -in ' + reqname + ' -text | grep -A 1 \'Subject Alternative Name:\' | tail -n 1 | sed \'s/\s//g\'').read().strip().split(',')
         for name in subaltname:
             if name == '':
-                return "Invalid Subject Alternative Name. Please use an existing DNS A record."
+                os.remove(reqname)
+                return "Invalid Subject Alternative Name. Please use an existing DNS A record.", 403
             elif name[:3] != "DNS":
-                return "Invalid Subject Alternative Name. We only valid DNS Subject Alternative Name."
-            elif len(dns.resolver.query(re.sub(r'DNS:[^.]*\.', '', name),'NS')) < 1:
-                return "Invalid Subject Alternative Name. Nonexistent NS record."
-            elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr.replace('.200.','.100.'):
-                return "Invalid Subject Alternative Name. You only can use your own DNS zone."
-            elif name != 'DNS:*.'+re.sub(r'DNS:[^.]*\.', '', name):
-                try:
+                os.remove(reqname)
+                return "Invalid Subject Alternative Name. We only valid DNS Subject Alternative Name.", 403
+            try:
+                if len(dns.resolver.query(re.sub(r'DNS:[^.]*\.', '', name),'NS')) < 1:
+                    os.remove(reqname)
+                    return "Invalid Subject Alternative Name. Nonexistent NS record.", 403
+                elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr.replace('.200.','.100.'):
+                    os.remove(reqname)
+                    return "Invalid Subject Alternative Name. You only can use your own DNS zone.", 403
+                elif name != 'DNS:*.'+re.sub(r'DNS:[^.]*\.', '', name):
                     if len(dns.resolver.resolve(re.sub(r'DNS:', '', name),'A')) < 1:
-                        return "Invalid Subject Alternative Name. Nonexistent A record."
-                except:
-                    return "Invalid Subject Alternative Name. Nonexistent A record."
+                        os.remove(reqname)
+                        return "Invalid Subject Alternative Name. Nonexistent A record.", 403
+            except:
+                os.remove(reqname)
+                return "Invalid Subject Alternative Name. Nonexistent record.", 403
 
-        os.system('./easyrsa import-req ' + reqname + ' \'' + subject['CN'].lower() + '\' --batch')
-        os.system('./easyrsa sign-req server \'' + subject['CN'].lower() + '\' --copy-ext --batch')
+        os.system('./easyrsa --batch import-req ' + reqname + ' \'' + subject['CN'].lower() + '\'')
+        os.system('./easyrsa --copy-ext --batch sign-req server \'' + subject['CN'].lower() + '\'')
     else:
-        return "Invalid type."
+        os.remove(reqname)
+        return "Invalid type.", 403
 
+    os.remove(reqname)
     return downloadcert(justsign=True,cn=subject['CN'].lower())
 
 
@@ -114,7 +123,7 @@ def downloadcert(justsign=False,cn=''):
 
         return send_file(outfile,mimetype='application/zip',as_attachment=True,attachment_filename='certificate.zip')
     else:
-        return "Certificate nonexist."
+        return "Certificate nonexist.", 403
 
 @app.route('/revoke',methods=['POST'])
 def revoke():
@@ -124,20 +133,33 @@ def revoke():
         if isca:
             studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr.replace('.200.','.100.') + '"}\'').read().strip().lower()
             if subject['CN'].lower() != studentid:
-                return "Invalid CA common name. You only can control CN with your studentid."
+                return "Invalid CA common name. You only can control CN with your studentid.", 403
         else:
             subaltname = os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 \'Subject Alternative Name:\' | tail -n 1 | sed \'s/\s//g\'').read().strip().split(',')
             for name in subaltname:
                 if name == '':
-                    return "Invalid Subject Alternative Name. You only can use your own DNS zone."
+                    return "Invalid Subject Alternative Name. You only can use your own DNS zone.", 403
                 elif str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0]) != request.remote_addr.replace('.200.','.100.'):
-                    return "Invalid Subject Alternative Name. You only can use your own DNS zone."
+                    return "Invalid Subject Alternative Name. You only can use your own DNS zone.", 403
     else:
-        return "Certificate nonexist."
+        return "Certificate nonexist.", 403
 
-    os.system('./easyrsa revoke \'' + subject['CN'].lower() + '\' --batch')
+    os.system('./easyrsa --batch revoke \'' + subject['CN'].lower() + '\'')
     os.system('./easyrsa gen-crl')
     return 'Success'
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return_result = {'code': 404, 'Success': False,
+                     "Message": "The website is not available currently"}
+    return jsonify(return_result), 404
+
+
+@app.errorhandler(403)
+def forbidden(e):
+    return_result = {'code': 403, 'Success': False,
+                     "Message": "The website is not available currently"}
+    return jsonify(return_result), 403
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=80)

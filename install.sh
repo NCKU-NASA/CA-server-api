@@ -91,7 +91,9 @@ INSTALL_PYTHON_PATH=python${INSTALL_PYTHON_VERSION:-3.7}
 
 echo "Python version is $INSTALL_PYTHON_VERSION"
 
-sudo apt-get install -y easy-rsa
+sudo apt-get install -y git wget curl
+
+git clone https://github.com/OpenVPN/easy-rsa
 
 arch=$(dpkg --print-architecture)
 
@@ -103,7 +105,7 @@ set -e
 
 if [ ! -d /etc/caserverapi/easy-rsa/ ]
 then
-    cp -r /usr/share/easy-rsa/ /etc/caserverapi/easy-rsa/
+    cp -r easy-rsa/easyrsa3/ /etc/caserverapi/easy-rsa/
 fi
 
 for filename in requirements.txt caserverapi.py caserverapi.sh .gitignore
@@ -115,6 +117,9 @@ for filename in caserverapi.sh
 do
 	sudo chmod +x /etc/caserverapi/$filename
 done
+
+
+
 sudo cp caserverapi.service /etc/systemd/system/caserverapi.service
 
 cd /etc/caserverapi

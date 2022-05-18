@@ -3,6 +3,7 @@ __pycache__/*
 server.crt
 server.key
 install-man-page.sh
+easy-rsa
 yq.1
 easy-rsa/*
 .DS_Store
