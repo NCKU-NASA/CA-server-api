@@ -65,11 +65,16 @@ def sign():
         if subject['CN'].lower() != studentid:
             os.remove(reqname)
             return "Invalid CA common name. please use studentid.", 403
-
+        elif os.path.isfile('pki/issued/' + subject['CN'].lower() + '.crt'):
+            os.remove(reqname)
+            return "Common name: " + subject['CN'].lower() + "already exist. Please revoke old certificate first.", 403
         os.system('./easyrsa --batch import-req ' + reqname + ' \'' + subject['CN'].lower() + '\'')
         os.system('./easyrsa --batch sign-req ca \'' + subject['CN'].lower() + '\'')
     elif data['type'] == 'web':
         subaltname = os.popen('openssl req -in ' + reqname + ' -text | grep -A 1 \'Subject Alternative Name:\' | tail -n 1 | sed \'s/\s//g\'').read().strip().split(',')
+        if os.path.isfile('pki/issued/' + subject['CN'].lower() + '.crt'):
+            os.remove(reqname)
+            return "Common name: " + subject['CN'].lower() + "already exist. Please revoke old certificate first.", 403
         for name in subaltname:
             if name == '':
                 os.remove(reqname)
@@ -129,7 +134,7 @@ def downloadcert(justsign=False,cn=''):
 def revoke():
     subject = json.loads(request.get_data())
     if os.path.isfile('pki/issued/' + subject['CN'].lower() + '.crt'):
-        isca = json.loads(os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 "Basic Constraints:" | grep "CA" | sed \'s/\s//g\' | awk -F \':\' \'{print $2}\'').read().strip())
+        isca = json.loads(os.popen('openssl x509 -in pki/issued/' + subject['CN'].lower() + '.crt -text | grep -A 1 "Basic Constraints:" | grep "CA" | sed \'s/\s//g\' | awk -F \':\' \'{print $2}\'').read().strip().lower())
         if isca:
             studentid=os.popen('curl -X POST 10.31.31.254/studentidtoip -H \'Content-Type:application/json\' --data \'{"ip":"' + request.remote_addr.replace('.200.','.100.') + '"}\'').read().strip().lower()
             if subject['CN'].lower() != studentid:
