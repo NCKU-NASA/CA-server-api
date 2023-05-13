@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/etc/caserverapi
-ExecStart=/etc/caserverapi/caserverapi.sh
+ExecStart=/usr/local/bin/caserverapi
 
 
 [Install]

@@ -23,4 +23,5 @@ do
     fi
 done
 
+sudo cp /usr/local/bin/caserverapi caserverapi.sh
 sudo cp /etc/systemd/system/caserverapi.service caserverapi.service

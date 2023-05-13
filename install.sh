@@ -108,16 +108,13 @@ then
     cp -r easy-rsa/easyrsa3/ /etc/caserverapi/easy-rsa/
 fi
 
-for filename in requirements.txt caserverapi.py caserverapi.sh .gitignore
+for filename in requirements.txt main.py conf sign .gitignore
 do
 	sudo cp -r $filename /etc/caserverapi/
 done
 
-for filename in caserverapi.sh
-do
-	sudo chmod +x /etc/caserverapi/$filename
-done
-
+sudo cp caserverapi.sh /usr/local/bin/caserverapi
+sudo chmod +x /usr/local/bin/caserverapi
 
 
 sudo cp caserverapi.service /etc/systemd/system/caserverapi.service

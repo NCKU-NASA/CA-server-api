@@ -5,10 +5,12 @@ sudo systemctl disable caserverapi.service
 
 sudo rm /etc/systemd/system/caserverapi.service
 
-for filename in requirements.txt caserverapi.py caserverapi.sh venv
+for filename in requirements.txt main.py conf sign venv
 do
 	sudo rm -r /etc/caserverapi/$filename
 done
+
+sudo rm /usr/local/bin/caserverapi
 
 sudo mv /etc/caserverapi/server.key .
 sudo mv /etc/caserverapi/server.crt .
