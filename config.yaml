@@ -1,5 +1,5 @@
 ListenHost: "[::]"
 ListenPort: "80"
-JudgeAPIURL: "10.187.10.254:8000"
+JudgeAPIURL: "http://10.187.10.254:8000"
 AllowNetworks:
 - 10.187.96.0/20

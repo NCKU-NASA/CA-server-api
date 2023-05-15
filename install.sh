@@ -113,6 +113,14 @@ do
 	sudo cp -r $filename /etc/caserverapi/
 done
 
+for filename in config.yaml
+do
+    if ! [ -f /etc/caserverapi/config.yaml ]
+    then
+	    sudo cp -r $filename /etc/caserverapi/
+    fi
+done
+
 sudo cp caserverapi.sh /usr/local/bin/caserverapi
 sudo chmod +x /usr/local/bin/caserverapi
 

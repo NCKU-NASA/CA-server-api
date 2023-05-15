@@ -1,5 +1,5 @@
 import os
-#import json
+import sys
 import zipfile
 import io
 import flask
@@ -8,7 +8,7 @@ import importlib
 import conf
 
 signmodules = {}
-for path in os.listdir("sign"):
+for path in os.listdir("../sign"):
     if path.endswith(".py"):
         modulename = os.path.splitext(path)[0]
         signmodules[modulename] = importlib.import_module(f'sign.{modulename}')
@@ -44,13 +44,13 @@ route:
 
 @app.route('/ca',methods=['GET'])
 def ca():
-    return flask.send_file("pki/ca.crt", mimetype='application/x-x509-ca-cert',as_attachment=True,attachment_filename='ca.crt')
+    return flask.send_file(os.path.abspath("pki/ca.crt"), mimetype='application/x-x509-ca-cert',as_attachment=True,attachment_filename='ca.crt')
 
 @app.route('/crl',methods=['GET'])
 def crl():
     if os.path.isfile('pki/crl.pem'):
         os.system('./easyrsa gen-crl')
-    return flask.send_file("pki/crl.pem", mimetype='application/x-pkcs7-crl',as_attachment=True,attachment_filename='crl.crl')
+    return flask.send_file(os.path.abspath("pki/crl.pem"), mimetype='application/x-pkcs7-crl',as_attachment=True,attachment_filename='crl.crl')
 
 @app.route('/downloadcert/<cn>',methods=['GET'])
 def downloadcert(cn):
@@ -77,25 +77,26 @@ def listcert():
 
 @app.route('/username',methods=['GET'])
 def getusername():
-    ipindex = conf.getipindex(request.remote_addr)
+    ipindex = conf.getipindex(flask.request.remote_addr)
     if ipindex < 0:
         return "Invalid IP address.", 403
-    return conf.userinfo({"ipindex":ipindex})['username']
+    return conf.getuserinfo({"ipindex":ipindex})['username']
 
 @app.route('/sign',methods=['GET'])
 def signhelp():
+    methodhelp = '\n'.join([signmodules[signtype].help(signtype) for signtype in signmodules])
     return f"""
 Usage: {conf.config['ListenHost']}/sign/<api>
 
 POST:
-{'\n'.join([signmodules[signtype].help(signtype) for signtype in signmodules])}
+{methodhelp}
 """
 
 @app.route('/sign/<certtype>',methods=['POST'])
 def sign(certtype):
     if certtype not in signmodules:
         return "Invalid type.", 403
-    return signmodules[certtype].sign(flask.request)
+    return signmodules[certtype].sign()
 
 
 @app.route('/revoke/<cn>',methods=['DELETE'])

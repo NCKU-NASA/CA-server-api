@@ -1,8 +1,9 @@
 import yaml
 import json
 import requests
+import ipaddress
 
-with open('config.yaml', 'r') as f:
+with open('../config.yaml', 'r') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 def getipindex(ipaddr):
