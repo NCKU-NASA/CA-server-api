@@ -94,6 +94,13 @@ echo "Python version is $INSTALL_PYTHON_VERSION"
 sudo apt-get install -y git wget curl
 
 git clone https://github.com/OpenVPN/easy-rsa
+if [ -e /usr/local/share/easy-rsa ]
+then
+    rm -r /usr/local/share/easy-rsa
+fi
+mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa
+ln -s ../share/easy-rsa/easyrsa /usr/local/bin/easyrsa
+rm -r easy-rsa
 
 arch=$(dpkg --print-architecture)
 
@@ -102,11 +109,6 @@ wget https://github.com/mikefarah/yq/releases/download/v4.17.2/yq_linux_${arch}.
 set +e
 sudo mkdir /etc/caserverapi 2> /dev/null
 set -e
-
-if [ ! -d /etc/caserverapi/easy-rsa/ ]
-then
-    cp -r easy-rsa/easyrsa3/ /etc/caserverapi/easy-rsa/
-fi
 
 for filename in requirements.txt main.py conf sign .gitignore
 do
@@ -141,21 +143,19 @@ python -m pip install wheel
 python -m pip install -r requirements.txt
 deactivate
 
-cd easy-rsa
-
 if [ ! -d pki ]
 then
-    sudo ./easyrsa init-pki
+    sudo easyrsa init-pki
 fi
 
 if [ ! -f pki/ca.crt ]
 then
-    sudo ./easyrsa build-ca nopass
+    sudo easyrsa build-ca nopass
 fi
 
 if [ ! -f pki/crl.pem ]
 then
-    sudo ./easyrsa gen-crl
+    sudo easyrsa gen-crl
 fi
 
 sudo systemctl daemon-reload
