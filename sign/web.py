@@ -48,8 +48,8 @@ def sign():
             os.remove(reqname)
             return "Invalid Subject Alternative Name. Nonexistent record.", 403
 
-    os.system(f'./easyrsa --batch import-req {reqname} \'{subject["CN"].lower()}\'')
-    os.system('./easyrsa --copy-ext --batch sign-req server \'{subject["CN"].lower()}\'')
+    os.system(f'easyrsa --batch import-req {reqname} \'{subject["CN"].lower()}\'')
+    os.system('easyrsa --copy-ext --batch sign-req server \'{subject["CN"].lower()}\'')
     return 'Certificate sign success. Please use "downloadcert" api to download your certificate.'
 
 def revoke(cn):
@@ -62,7 +62,7 @@ def revoke(cn):
         elif conf.getipindex(str(dns.resolver.resolve(str(dns.resolver.resolve(re.sub(r'DNS:[^.]*\.', '', name),'NS')[0]), 'A')[0])) != conf.getipindex(flask.request.remote_addr):
             return "Invalid Subject Alternative Name. You only can use your own DNS zone.", 403
 
-    os.system(f'./easyrsa --batch revoke \'{cn}\'')
-    os.system('./easyrsa gen-crl')
+    os.system(f'easyrsa --batch revoke \'{cn}\'')
+    os.system('easyrsa gen-crl')
     return 'Success'
 
