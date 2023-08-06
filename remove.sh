@@ -14,7 +14,6 @@ sudo rm /usr/local/bin/caserverapi
 
 sudo mv /etc/caserverapi/server.key .
 sudo mv /etc/caserverapi/server.crt .
-sudo mv /etc/caserverapi/easy-rsa .
 
 if [ "`ls /etc/caserverapi`" = "" ]
 then
@@ -25,7 +24,7 @@ echo ""
 echo ""
 echo "CA Server API Service remove.sh complete."
 
-for filename in server.key server.crt easy-rsa
+for filename in server.key server.crt
 do
 	echo "Your ${filename} is at $(pwd)/${filename}."
 done
