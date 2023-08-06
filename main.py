@@ -8,7 +8,7 @@ import importlib
 import conf
 
 signmodules = {}
-for path in os.listdir("../sign"):
+for path in os.listdir("sign"):
     if path.endswith(".py"):
         modulename = os.path.splitext(path)[0]
         signmodules[modulename] = importlib.import_module(f'sign.{modulename}')
