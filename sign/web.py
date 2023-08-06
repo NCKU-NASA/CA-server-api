@@ -49,7 +49,7 @@ def sign():
             return "Invalid Subject Alternative Name. Nonexistent record.", 403
 
     os.system(f'easyrsa --batch import-req {reqname} \'{subject["CN"].lower()}\'')
-    os.system('easyrsa --copy-ext --batch sign-req server \'{subject["CN"].lower()}\'')
+    os.system(f'easyrsa --copy-ext --batch sign-req server \'{subject["CN"].lower()}\'')
     return 'Certificate sign success. Please use "downloadcert" api to download your certificate.'
 
 def revoke(cn):
