@@ -23,23 +23,23 @@ Usage: {conf.config['ListenHost']}/<api>
 
 GET:
     ca                  download ca certificate.
-                        Ex: wget {conf.config['ListenHost']}/ca -O rootca.crt
+                        Ex: wget {conf.config['ListenHost']}:{conf.config['Port']}/ca -O rootca.crt
     crl                 download crl.
-                        Ex: wget {conf.config['ListenHost']}/crl -O rootcrl.crl
+                        Ex: wget {conf.config['ListenHost']}:{conf.config['Port']}/crl -O rootcrl.crl
     list                list all certificate CN.
-                        Ex: curl {conf.config['ListenHost']}/list
+                        Ex: curl {conf.config['ListenHost']}:{conf.config['Port']}/list
     downloadcert/<CN>   download certificate.
-                        Ex: wget {conf.config['ListenHost']}/downloadcert/<CN> -O certificate.zip
+                        Ex: wget {conf.config['ListenHost']}:{conf.config['Port']}/downloadcert/<CN> -O certificate.zip
     username            get username.
-                        Ex: curl {conf.config['ListenHost']}/username
+                        Ex: curl {conf.config['ListenHost']}:{conf.config['Port']}/username
 
 DELETE:
     revoke/<CN>         revoke your certificate.
-                        Ex: curl -X DELETE {conf.config['ListenHost']}/revoke/<CN>
+                        Ex: curl -X DELETE {conf.config['ListenHost']}:{conf.config['Port']}/revoke/<CN>
 
 route:
     sign                sign certificate.
-                        use 'curl {conf.config['ListenHost']}/sign' to see usage
+                        use 'curl {conf.config['ListenHost']}:{conf.config['Port']}/sign' to see usage
 """
 
 @app.route('/ca',methods=['GET'])
