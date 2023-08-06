@@ -30,8 +30,8 @@ def sign():
     elif os.path.isfile(f'pki/issued/{subject["CN"].lower()}.crt'):
         os.remove(reqname)
         return f"Common name: {subject['CN'].lower()} already exist. Please revoke old certificate first.", 403
-    os.system(f'./easyrsa --batch import-req {reqname} \'{subject["CN"].lower()}\'')
-    os.system(f'./easyrsa --batch sign-req ca \'{subject["CN"].lower()}\'')
+    os.system(f'easyrsa --batch import-req {reqname} \'{subject["CN"].lower()}\'')
+    os.system(f'easyrsa --batch sign-req ca \'{subject["CN"].lower()}\'')
     return 'Certificate sign success. Please use "downloadcert" api to download your certificate.'
 
 def revoke(cn):
@@ -43,7 +43,7 @@ def revoke(cn):
     if cn != userdata['username']:
         return "Invalid CA common name. You only can control CN with your username.", 403
 
-    os.system(f'./easyrsa --batch revoke \'{cn}\'')
-    os.system('./easyrsa gen-crl')
+    os.system(f'easyrsa --batch revoke \'{cn}\'')
+    os.system('easyrsa gen-crl')
     return 'Success'
 
