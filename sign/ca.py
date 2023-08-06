@@ -10,7 +10,7 @@ def help(signtype):
     return f"""
     {signtype.ljust(20, ' ')}sign a sub ca certificate.
                         req: certificate request file for sign
-                        Ex: curl {conf.config['ListenHost']}:{conf.config['Port']}/sign/{signtype} -F 'req=@<req file path>'"""
+                        Ex: curl {conf.config['ListenHost']}:{conf.config['ListenPort']}/sign/{signtype} -F 'req=@<req file path>'"""
     
 def checktype(cn):
     return json.loads(os.popen(f'openssl x509 -in pki/issued/{cn.lower()}.crt -text | grep -A 1 "Basic Constraints:" | grep "CA" | sed \'s/\s//g\' | awk -F \':\' \'{{print $2}}\'').read().strip().lower())
