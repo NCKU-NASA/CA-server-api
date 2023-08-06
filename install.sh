@@ -93,14 +93,14 @@ echo "Python version is $INSTALL_PYTHON_VERSION"
 
 sudo apt-get install -y git wget curl
 
-git clone https://github.com/OpenVPN/easy-rsa
-if [ -e /usr/local/share/easy-rsa ]
+if ! [ -e /usr/local/share/easy-rsa ]
 then
+    git clone https://github.com/OpenVPN/easy-rsa
     rm -r /usr/local/share/easy-rsa
+    mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa
+    ln -s ../share/easy-rsa/easyrsa /usr/local/bin/easyrsa
+    rm -r easy-rsa
 fi
-mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa
-ln -s ../share/easy-rsa/easyrsa /usr/local/bin/easyrsa
-rm -r easy-rsa
 
 arch=$(dpkg --print-architecture)
 
