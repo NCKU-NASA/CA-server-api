@@ -10,7 +10,7 @@ RUN git clone https://github.com/OpenVPN/easy-rsa && \
     mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa && \
     ln -s ../share/easy-rsa/easyrsa /usr/local/bin/easyrsa
 RUN easyrsa init-pki && \
-    echo "nsc39" | easyrsa build-ca nopass && \
+    echo "$CACN" | easyrsa build-ca nopass && \
     easyrsa gen-crl
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.17.2/yq_linux_$(dpkg --print-architecture).tar.gz -O - | tar xz && mv yq_linux_$(dpkg --print-architecture) /usr/bin/yq
 RUN pip3 install -r requirements.txt --break-system-packages
