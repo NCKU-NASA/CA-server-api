@@ -5,7 +5,7 @@ ARG CACN=testca
 WORKDIR /usr/app
 COPY . .
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -y lsb-release procps git curl wget gnupg2 iputils-ping mtr dnsutils python3 python3-venv  python3-dev python3-pip
+RUN apt-get install -y lsb-release procps iproute2 git curl wget gnupg2 iputils-ping mtr dnsutils python3 python3-venv  python3-dev python3-pip
 RUN git clone https://github.com/OpenVPN/easy-rsa && \
     mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa && \
     ln -s ../share/easy-rsa/easyrsa /usr/local/bin/easyrsa
