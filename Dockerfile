@@ -1,7 +1,5 @@
 FROM debian:latest
 
-ARG CACN=testca
-
 WORKDIR /usr/app
 COPY . .
 RUN apt-get update && apt-get -y upgrade
