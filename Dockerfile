@@ -10,8 +10,8 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y lsb-release procps iproute2 git curl wget gnupg2 iputils-ping mtr dnsutils python3 python3-venv  python3-dev python3-pip
 RUN git clone https://github.com/OpenVPN/easy-rsa && \
     mv easy-rsa/easyrsa3 /usr/local/share/easy-rsa && \
-    if [ "$CRLURL" != "" ]; then echo "crlDistributionPoints = URI:$CRLURI" >> /usr/local/share/easy-rsa/x509-types/COMMON; fi && \
-    if [ "$CAISSUERSURI" != "" ] && [ "$CAISSUERSURI" != "" ]; then \
+    if [ "$CRLURI" != "" ]; then echo "crlDistributionPoints = URI:$CRLURI" >> /usr/local/share/easy-rsa/x509-types/COMMON; fi && \
+    if [ "$CAISSUERSURI" != "" ] && [ "$OCSPURI" != "" ]; then \
         echo "authorityInfoAccess = caIssuers;URI:$CAISSUERSURI,OCSP;URI:$OCSPURI" >> /usr/local/share/easy-rsa/x509-types/COMMON; \
     elif [ "$CAISSUERSURI" != "" ]; then \
         echo "authorityInfoAccess = caIssuers;URI:$CAISSUERSURI" >> /usr/local/share/easy-rsa/x509-types/COMMON; \
